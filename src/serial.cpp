@@ -1,0 +1,90 @@
+#include "Serial.hpp"
+
+
+Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbits, char parity){
+	
+	#if defined(__linux__)
+		this->serial_port = open(port, O_RDWR);
+		if (serial_port < 0) {
+			std::cerr << "Error : can't open serial port" << std::endl;
+		}
+		
+		if (tcgetattr(serial_port, &(this->tty)) != 0) {
+			std::cerr << "Error : unable to get serial communication settings" << std::endl;
+		}
+		
+		cfsetispeed(&(this->tty), B9600); // Vitesse 9600 bauds pour les inputs
+		cfsetospeed(&(this->tty), B9600); // Vitesse 9600 bauds pour les outputs
+		
+		this->tty.c_cflag = (this->tty.c_cflag & ~CSIZE) | CS8;
+		this->tty.c_cflag |= (CLOCAL | CREAD);
+		
+		tcsetattr(serial_port, TCSANOW, &(this->tty));
+	#elif defined(_WIN32)
+	
+		this->hSerial = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (this->hSerial == INVALID_HANDLE_VALUE) {
+			std::cerr << "Error : can't open serial port" << std::endl;
+		}
+		
+		this->dcbSerialParams = {0};
+		this->dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+		
+		if (!GetCommState(this->hSerial, &(this->dcbSerialParams))) {
+			std::cerr << "Error : unable to get serial communication settings" << std::endl;
+		}
+	
+		this->dcbSerialParams.BaudRate = speed;  // Vitesse 9600 bauds
+		this->dcbSerialParams.ByteSize = byte_size;         // 7 bits par octet
+		this->dcbSerialParams.StopBits = stopbits;
+		this->dcbSerialParams.Parity = parity;
+		
+		if (!SetCommState(this->hSerial, &(this->dcbSerialParams))) {
+			std::cerr << "Error : unable to configure serial communication :(" << std::endl;
+		}
+		
+		PurgeComm(this->hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+		
+	#endif
+	
+}
+char Serial::uread(){
+	
+	char buffer[1];
+	
+	#if defined(__linux__)
+		int num_bytes = read(serial_port, buffer, sizeof(buffer));
+        if (num_bytes > 0) {
+            return buffer[0];
+        }
+	#elif defined(_WIN32)
+		if (ReadFile(this->hSerial, buffer, sizeof(buffer), &(this->bytesRead), NULL)) {
+			return buffer[0];
+		} else {
+			std::cerr << "Error : Bad reading :(" << std::endl;
+		}
+	#endif
+	return '\0';
+}
+void Serial::uwrite(char byte){
+	#if defined(__linux__)
+		
+	#elif defined(_WIN32)
+		if (this->hSerial == INVALID_HANDLE_VALUE) {
+            std::cerr << "Error : invalid port" << std::endl;
+            return;
+        }
+		
+		if (!WriteFile(this->hSerial, &byte, sizeof(byte), &(this->bytes_written), NULL)) {
+            std::cerr << "Error : Bad writting :(" << std::endl;
+        }
+	#endif
+}
+Serial::~Serial(){
+	
+	#if defined(__linux__)
+		close(serial_port);
+	#elif defined(_WIN32)
+		CloseHandle(this->hSerial);
+	#endif
+}
