@@ -1,4 +1,4 @@
-#include "Serial.hpp"
+#include "serial.hpp"
 
 
 Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbits, char parity){
@@ -9,16 +9,20 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 			std::cerr << "Error : can't open serial port" << std::endl;
 		}
 		
+		//Get the current configuration
 		if (tcgetattr(serial_port, &(this->tty)) != 0) {
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
 		}
 		
-		cfsetispeed(&(this->tty), B9600); // Vitesse 9600 bauds pour les inputs
-		cfsetospeed(&(this->tty), B9600); // Vitesse 9600 bauds pour les outputs
+		//Set input / output speed
+		cfsetispeed(&(this->tty), speed); 
+		cfsetospeed(&(this->tty), speed); 
 		
-		this->tty.c_cflag = (this->tty.c_cflag & ~CSIZE) | CS8;
+		//Serial port configuration
+		this->tty.c_cflag = (this->tty.c_cflag & ~CSIZE) | CS8; 
 		this->tty.c_cflag |= (CLOCAL | CREAD);
 		
+		//Done the configuration by apply it to the serial port
 		tcsetattr(serial_port, TCSANOW, &(this->tty));
 	#elif defined(_WIN32)
 	
@@ -34,15 +38,18 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
 		}
 	
-		this->dcbSerialParams.BaudRate = speed;  // Vitesse 9600 bauds
-		this->dcbSerialParams.ByteSize = byte_size;         // 7 bits par octet
+		//Serial configuration
+		this->dcbSerialParams.BaudRate = speed;  
+		this->dcbSerialParams.ByteSize = byte_size;      
 		this->dcbSerialParams.StopBits = stopbits;
 		this->dcbSerialParams.Parity = parity;
 		
+		//Done the configuration by apply it to the serial port
 		if (!SetCommState(this->hSerial, &(this->dcbSerialParams))) {
 			std::cerr << "Error : unable to configure serial communication :(" << std::endl;
 		}
 		
+		//Clear the serial port
 		PurgeComm(this->hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 		
 	#endif
@@ -66,6 +73,7 @@ char Serial::uread(){
 	#endif
 	return '\0';
 }
+//Not tested funtion
 void Serial::uwrite(char byte){
 	#if defined(__linux__)
 		
