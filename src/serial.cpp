@@ -49,6 +49,13 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 			std::cerr << "Error : unable to configure serial communication :(" << std::endl;
 		}
 		
+		//Put a reading timeout
+		COMMTIMEOUTS timeouts = {0};
+		timeouts.ReadIntervalTimeout = 1; // Delay between two bytes
+		timeouts.ReadTotalTimeoutConstant = 50; // Reading Timeout 
+		timeouts.ReadTotalTimeoutMultiplier = 10; // ???
+		SetCommTimeouts(this->hSerial, &timeouts);
+		
 		//Clear the serial port
 		PurgeComm(this->hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 		
@@ -65,6 +72,7 @@ char Serial::uread(){
             return buffer[0];
         }
 	#elif defined(_WIN32)
+		//Read a Character and return it
 		if (ReadFile(this->hSerial, buffer, sizeof(buffer), &(this->bytesRead), NULL)) {
 			return buffer[0];
 		} else {
@@ -73,16 +81,17 @@ char Serial::uread(){
 	#endif
 	return '\0';
 }
-//Not tested funtion
+//Now do linux idiot !
 void Serial::uwrite(char byte){
 	#if defined(__linux__)
 		
 	#elif defined(_WIN32)
+		//Check the port availability
 		if (this->hSerial == INVALID_HANDLE_VALUE) {
             std::cerr << "Error : invalid port" << std::endl;
             return;
         }
-		
+		//Write a character
 		if (!WriteFile(this->hSerial, &byte, sizeof(byte), &(this->bytes_written), NULL)) {
             std::cerr << "Error : Bad writting :(" << std::endl;
         }
