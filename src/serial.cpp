@@ -5,12 +5,12 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 	
 	#if defined(__linux__)
 		this->serial_port = open(port, O_RDWR);
-		if (serial_port < 0) {
+		if (this->serial_port < 0) {
 			std::cerr << "Error : can't open serial port" << std::endl;
 		}
 		
 		//Get the current configuration
-		if (tcgetattr(serial_port, &(this->tty)) != 0) {
+		if (tcgetattr(this->serial_port, &(this->tty)) != 0) {
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
 		}
 		
@@ -23,7 +23,7 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		this->tty.c_cflag |= (CLOCAL | CREAD);
 		
 		//Done the configuration by apply it to the serial port
-		tcsetattr(serial_port, TCSANOW, &(this->tty));
+		tcsetattr(this->serial_port, TCSANOW, &(this->tty));
 	#elif defined(_WIN32)
 	
 		this->hSerial = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -32,7 +32,7 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		}
 		
 		this->dcbSerialParams = {0};
-		this->dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+		this->dcbSerialParams.DCBlength = sizeof(this->dcbSerialParams);
 		
 		if (!GetCommState(this->hSerial, &(this->dcbSerialParams))) {
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
@@ -60,7 +60,7 @@ char Serial::uread(){
 	char buffer[1];
 	
 	#if defined(__linux__)
-		int num_bytes = read(serial_port, buffer, sizeof(buffer));
+		int num_bytes = read(this->serial_port, buffer, sizeof(buffer));
         if (num_bytes > 0) {
             return buffer[0];
         }
