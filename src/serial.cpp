@@ -22,6 +22,16 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		this->tty.c_cflag = (this->tty.c_cflag & ~CSIZE) | CS8; 
 		this->tty.c_cflag |= (CLOCAL | CREAD);
 		
+		tty.c_iflag &= ~IGNBRK;    // Disable ignore break
+        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // No software flux control
+
+        tty.c_lflag = 0; // No echo
+        tty.c_oflag = 0; // No output processing
+
+        // Timeout configuration
+        tty.c_cc[VMIN] = 1;  // Minimum 1 caractère
+        tty.c_cc[VTIME] = 5; // Timeout de 0.5 seconde
+		
 		//Done the configuration by apply it to the serial port
 		tcsetattr(this->serial_port, TCSANOW, &(this->tty));
 	#elif defined(_WIN32)
