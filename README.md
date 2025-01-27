@@ -25,11 +25,11 @@ Here is some information about library's functions
 ## Changelog
 
 27/01/2025 : Seriallib-X-PC  v0.9 release  
--Adding serial reading on linux 
--Adding serial writing on linux / windows   
+-Adding serial reading on linux  
+-Adding serial writing on linux / windows    
 
-23/01/2025 : Seriallib-X-PC  v0.1 release  
--Adding serial reading on windows 
+23/01/2025 : Seriallib-X-PC  v0.1 release   
+-Adding serial reading on windows  
 
 Please, if you have any suggest/question contact me on contact@ingeno.fr
 
