@@ -82,6 +82,7 @@ char Serial::uread(){
         if (num_bytes > 0) {
             return buffer[0];
         }
+		usleep(1000); //Sleep delay 
 	#elif defined(_WIN32)
 		//Read a Character and return it
 		if (ReadFile(this->hSerial, buffer, sizeof(buffer), &(this->bytesRead), NULL)) {
@@ -104,6 +105,7 @@ void Serial::uwrite(char byte){
         if (write(this->serial_port, &byte, sizeof(byte)) < 0) {
             std::cerr << "Error : Bad writting :(" << std::endl;
         }
+		usleep(1000); //Sleep delay 
 	#elif defined(_WIN32)
 		//Check the port availability
 		if (this->hSerial == INVALID_HANDLE_VALUE) {
