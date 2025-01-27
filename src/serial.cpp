@@ -4,7 +4,7 @@
 Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbits, char parity){
 	
 	#if defined(__linux__)
-		this->serial_port = open(port, O_RDWR);
+		this->serial_port = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		if (this->serial_port < 0) {
 			std::cerr << "Error : can't open serial port" << std::endl;
 		}
@@ -21,16 +21,17 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		//Serial port configuration
 		this->tty.c_cflag = (this->tty.c_cflag & ~CSIZE) | CS8; 
 		this->tty.c_cflag |= (CLOCAL | CREAD);
+		this->tty.c_cflag &= ~CRTSCTS;                   // Pas de contrôle matériel
 		
-		tty.c_iflag &= ~IGNBRK;    // Disable ignore break
-        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // No software flux control
+		this->tty.c_iflag &= ~IGNBRK;    // Disable ignore break
+        this->tty.c_iflag &= ~(IXON | IXOFF | IXANY); // No software flux control
 
-        tty.c_lflag = 0; // No echo
-        tty.c_oflag = 0; // No output processing
+        this->tty.c_lflag = 0; // No echo
+        this->tty.c_oflag = 0; // No output processing
 
         // Timeout configuration
-        tty.c_cc[VMIN] = 1;  // Minimum 1 caractère
-        tty.c_cc[VTIME] = 5; // Timeout de 0.5 seconde
+        this->tty.c_cc[VMIN] = 1;  // Minimum 1 char
+        this->tty.c_cc[VTIME] = 5; // 0.5s Timeout 
 		
 		//Done the configuration by apply it to the serial port
 		tcsetattr(this->serial_port, TCSANOW, &(this->tty));
