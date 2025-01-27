@@ -26,7 +26,8 @@ Here is some information about library's functions
 
 27/01/2025 : Seriallib-X-PC  v0.9 release  
 -Adding serial reading on linux 
--Adding serial writing on linux / windows
+-Adding serial writing on linux / windows   
+
 23/01/2025 : Seriallib-X-PC  v0.1 release  
 -Adding serial reading on windows 
 
