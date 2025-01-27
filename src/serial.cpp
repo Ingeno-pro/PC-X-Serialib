@@ -86,7 +86,7 @@ void Serial::uwrite(char byte){
 	#if defined(__linux__)
 		//Check the port availability
 		if (this->serial_port == -1) {
-            std::cerr << "Port série non valide, senpai~ 💔" << std::endl;
+            std::cerr << "Error : invalid port" << std::endl;
             return;
         }
 		//Write a character
