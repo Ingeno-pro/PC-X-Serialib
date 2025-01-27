@@ -15,7 +15,7 @@ Here is some information about library's functions
 `char Serial::uread()` : Allow to read a character on a serial communication   
 `void Serial::write(char byte)` : Send a byte on a serial communication   
 `Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbits, char parity)` : Initialize the serial interface   
-/!\ The port is "COMX" on windows and "/dev/ttyXXXX" on linux.
+/!\ The port is "COMX" on windows and "/dev/ttyXXXX" on linux.  
 /!\ On linux, if the files corresponding to your serial ports can only be read in superuser mode, you have to launch your program with `sudo`
 
 ## To do 
