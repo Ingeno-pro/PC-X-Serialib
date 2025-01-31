@@ -36,5 +36,7 @@ class Serial
 	
 };
 
+void getAvailableSerialPort(char **tab);
+
 
 #endif
