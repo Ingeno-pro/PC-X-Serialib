@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #if defined(__linux__)
 	#include <fcntl.h>
@@ -36,7 +37,7 @@ class Serial
 	
 };
 
-void getAvailableSerialPort(char **tab);
+void getAvailableSerialPort(std::vector<std::string>& port_array);
 
 
 #endif

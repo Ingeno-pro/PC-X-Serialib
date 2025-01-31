@@ -126,19 +126,17 @@ Serial::~Serial(){
 		CloseHandle(this->hSerial);
 	#endif
 }
-void getAvailableSerialPort(char **tab){
+void getAvailableSerialPort(std::vector<std::string>& port_array){
 	
-	int index=0;
-	if(tab == NULL) return;
-	
+	char port[10]; 
 	#if defined(__linux__)
 	#elif defined(_WIN32)
 	for (int i = 1; i <= 256; i++) {  // Tester COM1 à COM256
-        snprintf(tab[index], 6, "COM%d", i);
-        HANDLE hSerial = CreateFile(tab[index], GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);	
+        snprintf(port, sizeof(port), "COM%d", i);
+        HANDLE hSerial = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
         if (hSerial != INVALID_HANDLE_VALUE) {
+			port_array.push_back(port);
             CloseHandle(hSerial);
-			index++;
         }
     }
 	#endif
