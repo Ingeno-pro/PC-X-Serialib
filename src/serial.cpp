@@ -128,7 +128,8 @@ Serial::~Serial(){
 }
 void getAvailableSerialPort(std::vector<std::string>& port_array){
 	
-	char port[10]; 
+	char port[10];
+	port_array.clear();	
 	#if defined(__linux__)
 	#elif defined(_WIN32)
 	for (int i = 1; i <= 256; i++) {  // Tester COM1 à COM256
