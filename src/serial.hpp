@@ -22,7 +22,11 @@ class Serial
 		char uread();
 		void uwrite(char byte);
 		
+		bool get_availability();
+		
 	private:
+		bool is_available; 
+	
 		#if defined(__linux__)
 			int serial_port;
 			termios tty;

@@ -3,14 +3,18 @@
 
 Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbits, char parity){
 	
+	this->is_available = true;
+	
 	#if defined(__linux__)
 		this->serial_port = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		if (this->serial_port < 0) {
+			this->is_available = false;
 			std::cerr << "Error : can't open serial port" << std::endl;
 		}
 		
 		//Get the current configuration
 		if (tcgetattr(this->serial_port, &(this->tty)) != 0) {
+			this->is_available = false;
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
 		}
 		
@@ -39,6 +43,7 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 	
 		this->hSerial = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (this->hSerial == INVALID_HANDLE_VALUE) {
+			this->is_available = false;
 			std::cerr << "Error : can't open serial port" << std::endl;
 		}
 		
@@ -46,6 +51,7 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		this->dcbSerialParams.DCBlength = sizeof(this->dcbSerialParams);
 		
 		if (!GetCommState(this->hSerial, &(this->dcbSerialParams))) {
+			this->is_available = false;
 			std::cerr << "Error : unable to get serial communication settings" << std::endl;
 		}
 	
@@ -57,6 +63,7 @@ Serial::Serial(const char *port, unsigned int speed, char byte_size, char stopbi
 		
 		//Done the configuration by apply it to the serial port
 		if (!SetCommState(this->hSerial, &(this->dcbSerialParams))) {
+			this->is_available = false;
 			std::cerr << "Error : unable to configure serial communication :(" << std::endl;
 		}
 		
@@ -93,7 +100,6 @@ char Serial::uread(){
 	#endif
 	return '\0';
 }
-//Now do linux idiot !
 void Serial::uwrite(char byte){
 	#if defined(__linux__)
 		//Check the port availability
@@ -126,6 +132,10 @@ Serial::~Serial(){
 		CloseHandle(this->hSerial);
 	#endif
 }
+bool Serial::get_availability(){
+	return this->availability;
+}
+//To do on linux
 void getAvailableSerialPort(std::vector<std::string>& port_array){
 	
 	char port[10];
