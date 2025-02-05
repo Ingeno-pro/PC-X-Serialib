@@ -133,7 +133,7 @@ Serial::~Serial(){
 	#endif
 }
 bool Serial::get_availability(){
-	return this->availability;
+	return this->is_available;
 }
 //To do on linux
 void getAvailableSerialPort(std::vector<std::string>& port_array){
